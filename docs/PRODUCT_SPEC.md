@@ -1,8 +1,9 @@
 # Product Acceptance Spec — Used Cars Athens (Astro Rebuild)
 
 Status: **for CEO sign-off** · Scope: verify against built `site/` (dist) and legacy HTML at repo root. Docs only — no code changes.
-**Rev 2 (2026-10-26):** form-compliance fixes applied to `site/` — TCPA copy restored verbatim, co-buyer gating fixed (No co-buyer default), SSN label/required parity (ITIN-inclusive), `autocomplete` tokens, SR live-regions, graceful submit fallback. See §9 notes.
-Locked CEO decisions (final): phone/email-first CTAs · server-rendered filter forms (no UI framework) · Montserrat + `#8e0b07` brand palette · **trailing slashes ON** · `/` = inventory (canonical stays `https://www.usedcarsathens.com/`) · `/home` = landing · per-vehicle pages **P1** · snapshot + graceful sync · exclude TEST record.
+**Rev 3 (2026-10-26):** CEO decision — **forms now use Netlify Forms** (native HTML; replaces the interim `PUBLIC_LEAD_ENDPOINT` / graceful-fallback plan). Both forms ship `data-netlify="true"` (names `apply-online` / `contact-us`), dual honeypots (`website` + `_gotcha`), verbatim legacy success copy revealed on Netlify's `?submitted` redirect, `netlify.toml` build config added. Verified in dist. Supersedes Rev 2's "graceful submit fallback" note.
+**Rev 2 (2026-10-26):** form-compliance fixes applied to `site/` — TCPA copy restored verbatim, co-buyer gating fixed (No co-buyer default), SSN label/required parity (ITIN-inclusive), `autocomplete` tokens, SR live-regions. See §9 notes.
+Locked CEO decisions (final): phone/email-first CTAs · server-rendered filter forms (no UI framework) · Montserrat + `#8e0b07` brand palette · **trailing slashes ON** · `/` = inventory (canonical stays `https://www.usedcarsathens.com/`) · `/home` = landing · per-vehicle pages **P1** · snapshot + graceful sync · exclude TEST record · **forms → Netlify Forms (native HTML, no JS submission library)**.
 
 ## 1. Goals & KPIs (north-star, 90 days post-launch)
 
@@ -85,20 +86,26 @@ Snapshot policy: `site/src/data/vehicles.json` committed (5 vehicles, `TEST` row
 - Honeypot: hidden `input name="website"` (`tabindex="-1"`, `aria-hidden`) ✅ on both forms.
 - Validation: native HTML5 `required`/types (browser bubbles) — works today. Co-buyer fields disabled until Relationship chosen (inline JS toggle, verified).
 - Status area: success/error/attention strings present in DOM, `hidden`, verbatim legacy ✅.
-- **⚠ CRITICAL:** no submit handler exists (`action=PUBLIC_LEAD_ENDPOINT ?? "#"`; no `fetch`, no `submit` listener in dist). A submission POSTs to the page itself → data lost, no confirmation visible. **Form is not end-to-end functional** → CEO Q4 blocks KPI 1 and KPI 5.
+- ~~**⚠ CRITICAL:** no submit handler exists~~ → **RESOLVED (Rev 3):** native Netlify Forms — `<form method="post" name="apply-online" data-netlify="true">`; Netlify intercepts the native POST server-side, 302-redirects back to the form page with `?submitted`, and the inline script reveals the verbatim legacy `Thank You!` success panel. Dual honeypot: legacy `website` field + Netlify-native `_gotcha`.
 
 ### 5.2 Contact form (P0)
 
 - Fields: First, Last, Phone, Email, Contact Preference (Phone/Email/SMS), Message (1024 max, live counter `aria-live=polite` ✅).
-- Honeypot ✅. Same missing-submit-handler gap as §5.1.
+- Honeypot ✅ (both `website` + Netlify-native `_gotcha`). ~~Same missing-submit-handler gap as §5.1.~~ → **RESOLVED (Rev 3):** native Netlify Form `name="contact-us" data-netlify="true"`; success via `?submitted` redirect revealing verbatim legacy copy.
 - ⚠ Missing legacy TCPA consent (§3.2 C2) → CEO Q1.
 
-### 5.3 Submit strategy (spec, pending Q4)
+### 5.3 Submit strategy (FINAL — Netlify Forms, Rev 3)
 
-1. `PUBLIC_LEAD_ENDPOINT` env (per page or shared) — build-time only; no secret endpoint keys client-side.
-2. Client JS: intercept submit → honeypot check (silently drop) → fetch `POST` (JSON or form-encoded, per endpoint) → set success/error div (`role="status"` / `role="alert"`; currently no live-region role — see §7).
-3. Failure path → verbatim error string, keep input values.
-4. reCAPTCHA Enterprise (legacy key exists) = P2 (§8).
+CEO decision 2026-10-26: **forms move to Netlify Forms** (native HTML; drops the earlier `PUBLIC_LEAD_ENDPOINT` env + graceful-fallback plan, and the DealerCenter DWS runtime the legacy site used). Implementation:
+
+1. Both pages: `<form method="post" name="apply-online|contact-us" data-netlify="true">` — no `action`, no JS submission library (keeps the minimal-JS budget).
+2. Netlify intercepts the native POST server-side → validates → 302-redirects back to the same page with `?submitted` appended.
+3. Small inline `<script>` (no deps): on load, if `location.search` contains `submitted` → reveal `#form-success` (verbatim legacy "Thank You!" copy) + `scrollIntoView`; on submit, if either honeypot (`website`, `_gotcha`) is non-empty → `preventDefault()` and silently no-op.
+4. Honeypots: legacy hidden `website` field kept **and** Netlify-native `<input type="hidden" name="_gotcha">` added (`data-netlify-honeypot` handled by Netlify itself; we belt-and-suspenders in JS too).
+5. Delivery to inbox: Netlify Forms → set notification email to **paul@usedcarsathens.com** for both forms (Netlify-site-side config, not code).
+6. reCAPTCHA (P2): legacy `reCAPTCHA Enterprise` key replaced by Netlify reCAPTCHA via `data-netlify-recaptcha="true"` if bot traffic warrants it.
+
+`site/netlify.toml`: `[build] command = "npm run build"`, `publish = "dist"`.
 
 ### 5.4 Current state vs. spec
 
@@ -107,9 +114,9 @@ Snapshot policy: `site/src/data/vehicles.json` committed (5 vehicles, `TEST` row
 | Client validation | ✅ native |
 | Honeypot | ✅ both forms |
 | Verbatim status copy | ✅ both forms |
-| Endpoint wired | ❌ `#` fallback |
-| Confirmation shown | ❌ no handler |
-| Consent: Apply / Contact | ✅ / ❌ |
+| Endpoint wired | ✅ Netlify Forms (`data-netlify="true"`, native POST; no env key) |
+| Confirmation shown | ✅ `?submitted` redirect reveals verbatim success copy |
+| Consent: Apply / Contact | ✅ / ✅ |
 
 ## 6. SEO
 
@@ -163,7 +170,7 @@ AutoDealer: address 159 Oneta St STE 4, Athens GA 30601 · tel `+1 706-215-9006`
 | Item | Notes |
 |---|---|
 | Dealer chat widget | legacy `chat-cf.dealercenter.net` appId available |
-| reCAPTCHA Enterprise | legacy key available; pair with Q4 endpoint |
+| reCAPTCHA (P2) | Netlify reCAPTCHA via `data-netlify-recaptcha="true"` on the Netlify Forms (replaces legacy reCAPTCHA Enterprise key); add only if bot traffic warrants |
 | Vehicle follow / compare bar | legacy DealerCenter feature |
 | Carfax reports | per-vehicle; needs data source |
 | Image upgrades | replace/hotlink `imagescf.dealercenter.net/{w}/{h}/{docId}.jpg` (needs permission — Q5) |
@@ -175,8 +182,8 @@ AutoDealer: address 159 Oneta St STE 4, Athens GA 30601 · tel `+1 706-215-9006`
 - [ ] `npm run sync` with network down → warning + exit 0, build unchanged (verified ✅)
 - [ ] Every route has **unique** `<title>`, `meta description`, `link rel=canonical` (verified ✅)
 - [ ] All 5 vehicles render on `/` and `/vehicles/{slug}/` with price/VIN/mileage/specs (verified ✅; TEST record absent ✅)
-- [x] **Apply form: submit → visible confirmation** — ✅ graceful fallback live (honeypot-aware; `Thank You!` + tel/mailto CTA while `PUBLIC_LEAD_ENDPOINT` is unset; native POST proceeds once set). Real-destination e2e pending Q4
-- [x] Contact form: submit → visible confirmation — ✅ same fallback, verified in dist
+- [x] **Apply form: submit → visible confirmation** — ✅ Netlify Forms wired (native POST, `data-netlify="true"`, `?submitted` reveals verbatim "Thank You!" success copy; dual honeypot). ✅ verified in dist. Real-destination e2e = first production submit via Netlify (Netlify-side: notification email set to paul@usedcarsathens.com)
+- [x] Contact form: submit → visible confirmation — ✅ same Netlify wiring, verified in dist
 - [x] Contact form shows restored TCPA/consent paragraph, **verbatim** from legacy (Q1) — ✅ verified in dist (full TCPA + Do-Not-Call + access-fee sentences)
 - [x] `co_buyer_relationship` does not block solo applicants (Q2) — ✅ `No co-buyer` is the default-selected option, `required` removed, co-buyer fields `disabled` in initial HTML until a relationship is chosen; SSN follows legacy `SSN *` (relabeled `SSN / ITIN`), enforced only when a co-buyer is active
 - [ ] Lighthouse: a11y **≥ 95** on all 9 template types (run on staging; `autocomplete` + live-regions are in place — confirm score)
@@ -191,5 +198,5 @@ AutoDealer: address 159 Oneta St STE 4, Athens GA 30601 · tel `+1 706-215-9006`
 1. **CONTACT CONSENT (compliance):** Restore the legacy TCPA/consent paragraph verbatim above the contact form ("I consent to receive information by email, telephone call, including those made with an automatic telephone dialing system or an artificial or pre-recorded voice, and/or SMS message… I have read and agree to the Privacy Policy of this dealer.")? **Recommendation: yes — required before launch.** → **RESOLVED 10-26: yes — restored verbatim, verified in dist.**
 2. **SSN + CO-BUYER GATING (legal/UX):** (a) Apply form: relabel/require — legacy said `SSN *`; new is optional `SSS / ITIN`. Keep optional or make required? (b) `Relationship to Buyer` is currently `required` with no "None" option, blocking applicants without a co-buyer. Ship a "No co-buyer" default? **Recommendation: optional SSN (ITIN-inclusive), default-gate the co-buyer block.** → **RESOLVED 10-26: `No co-buyer` default-selected + block gated (disabled while none); SSN follows legacy `SSN *` — required, relabeled `SSN / ITIN` (ITIN-inclusive), enforced only when a co-buyer is active.**
 3. **APPLY-FORM SCOPE (disclaimers are yours to own):** Confirm the intentional removals: Interested-Vehicle fields, Trade-in block, previous address & employment repeaters, as built — and confirm the remaining consent text is the complete legal version required for financing inquiries?
-4. **LEAD ENDPOINT (blocks KPIs 1 & 5):** Where do both forms POST in production? Options: (a) DealerCenter DWS secured forms (`dwssecuredforms.dealercenter.net`) as legacy did, (b) direct `paul@` mailbox via static-host form handler (e.g., Formspree/Getform), (c) other CRM. Who wires the submit handler + keeps reCAPTCHA? Without an answer, the site cannot collect any leads. → **Interim CEO decision 10-26: ship with the honest graceful fallback (no dead submit — `Thank You!` + tel/mailto CTA); set `PUBLIC_LEAD_ENDPOINT` at deploy and the same form goes live with native POST. Final destination still CEO-owned.**
+4. **LEAD ENDPOINT:** Where do both forms POST in production? → **RESOLVED 10-26 (REV 3): Netlify Forms.** CEO: "we are no longer using wordpress nor dealercenter dws — forms move to Netlify Forms." Native HTML forms (`data-netlify="true"`, names `apply-online` / `contact-us`); Netlify intercepts the POST, 302-redirects back with `?submitted`; inline script reveals the verbatim legacy success copy. Remaining Netlify-side action: Forms → Notifications → set email to **paul@usedcarsathens.com** for both forms. reCAPTCHA: Netlify reCAPTCHA (`data-netlify-recaptcha="true"`) if needed (P2).
 5. **ASSET PERMISSIONS (P2 but time-sensitive):** Do we have written permission to (a) hotlink `imagescf.dealercenter.net` car photos and (b) serve the KBB badge in production? If not, plan fallback branding/images before the chat/Carfax work in §8.
