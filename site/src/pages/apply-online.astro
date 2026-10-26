@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+import BuyerFields from '../components/BuyerFields.astro';
+
+const SITE = 'https://www.usedcarsathens.com';
+const action = import.meta.env.PUBLIC_LEAD_ENDPOINT ?? '#';
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/home/` },
+    { '@type': 'ListItem', position: 2, name: 'Apply Online', item: `${SITE}/apply-online/` },
+  ],
+};
+
+const title = 'Apply Online - Used Cars Athens';
+const description =
+  'Ready to ride? Apply for financing at Used Cars Athens in Athens, GA with our quick online credit application. We work with you to get the best deal.';
+
+const relationshipOptions: Array<[string, string]> = [
+  ['1', 'Co-Habitant'],
+  ['2', 'Parent'],
+  ['5', 'Spouse'],
+  ['6', 'Relative'],
+  ['7', 'Registered Domestic Partner'],
+  ['8', 'Civil Union'],
+  ['3', 'Other'],
+];
+---
+
+<BaseLayout title={title} description={description} path="/apply-online/" extraLd={[breadcrumbLd]}>
+  <div class="page-hero">
+    <div class="container">
+      <h1>Apply Online</h1>
+    </div>
+  </div>
+
+  <div class="page-section">
+    <div class="container">
+      <ul class="breadcrumb" aria-label="Breadcrumb">
+        <li><a href="/home/">Home</a></li>
+        <li aria-current="page">Apply Online</li>
+      </ul>
+
+      <div class="form-card" style="margin-top:2rem;max-width:48rem">
+        <p>
+          Complete the application below and a representative from the dealership will follow up with
+          you about your financing options.
+        </p>
+
+        <form method="post" action={action} data-endpoint-set={import.meta.env.PUBLIC_LEAD_ENDPOINT ? 'true' : 'false'}>
+          <BuyerFields namePrefix="" legendBase="Buyer" />
+
+          <div class="field">
+            <label for="co_buyer_relationship">
+              Relationship to Buyer<span class="req" aria-hidden="true"> *</span>
+            </label>
+            <select id="co_buyer_relationship" name="co_buyer_relationship">
+              <option value="0" selected>No co-buyer</option>
+              {relationshipOptions.map(([value, label]) => (
+                <option value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div id="co-buyer-fields" hidden>
+            <BuyerFields namePrefix="co_buyer" legendBase="Co-Buyer" disabled />
+          </div>
+
+          <div class="prose" style="margin-top:1.5rem">
+            <p>
+              By clicking "Submit", I, the undersigned, (a) for the purpose of securing credit,
+              certify the below representations to be correct; (b) authorize financial institutions,
+              as they consider necessary and appropriate, to obtain consumer credit reports on me
+              periodically and to gather employment history, and (c) understand that we, or any
+              financial institution to whom this application is submitted, will retain this
+              application whether or not it is approved, and that it is the applicant's
+              responsibility to notify the creditor of any change of name, address, or employment.
+              We and any financial institution to whom this application is submitted, may share
+              certain non-public personal information about you with your authorization or as
+              provided by law.
+            </p>
+            <p>
+              I consent to be contacted by the dealer at any telephone number or Email I provide,
+              including, without limitation, communications sent via text message to my cell phone
+              or communications sent using an autodialer or prerecorded message. This acknowledgment
+              constitutes my written consent to receive such communications. I have read and agree to
+              the Privacy Policy of this dealer.
+            </p>
+          </div>
+
+          <label class="consent" for="accept_terms">
+            <input
+              type="checkbox"
+              id="accept_terms"
+              name="accept_terms"
+              required
+            />
+            <span class="consent-copy">
+              I accept all the above terms
+            </span>
+          </label>
+
+          <p class="hint">All fields marked with an asterisk (*) are required</p>
+
+          <input
+            type="text"
+            name="website"
+            class="hp-field"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <div id="form-error" class="form-status error" role="alert" hidden>
+            <p>There was an error submitting the form. Please try again in a few minutes.</p>
+            <p>
+              There are some items that require your attention. Please check all highlighted fields
+              above.
+            </p>
+          </div>
+
+          <div id="form-success" class="form-status success" role="status" hidden>
+            <p>Thank You!</p>
+            <p>
+              We're sorry — the online submission isn't fully connected yet. Call us at (706)
+              215-9006 or email paul@usedcarsathens.com and a representative will get you taken
+              care of right away.
+            </p>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const sel = document.getElementById('co_buyer_relationship') as HTMLSelectElement | null;
+  const panel = document.getElementById('co-buyer-fields');
+  if (sel && panel) {
+    sel.addEventListener('change', () => {
+      panel.hidden = sel.value === '0';
+      const off = panel.hidden;
+      panel.querySelectorAll<HTMLInputElement>('input, select').forEach((el) => {
+        el.disabled = off;
+      });
+    });
+  }
+</script>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('form');
+  if (form) {
+    form.addEventListener('submit', (event) => {
+      const honeypot = form.querySelector<HTMLInputElement>('input[name="website"]');
+      if (honeypot && honeypot.value.trim() !== '') {
+        event.preventDefault();
+        return;
+      }
+      const endpointSet = form.dataset.endpointSet === 'true';
+      if (form.action === '#' || !endpointSet) {
+        event.preventDefault();
+        const err = document.getElementById('form-error');
+        if (err) err.hidden = true;
+        const ok = document.getElementById('form-success');
+        if (ok) ok.hidden = false;
+      }
+    });
+  }
+</script>
+</BaseLayout>

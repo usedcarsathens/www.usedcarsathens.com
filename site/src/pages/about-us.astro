@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+
+const SITE = 'https://www.usedcarsathens.com';
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/home/` },
+    { '@type': 'ListItem', position: 2, name: 'About Us', item: `${SITE}/about-us/` },
+  ],
+};
+
+const title = 'About Us - Used Cars Athens';
+const description =
+  'Learn about Used Cars Athens — a stress-free, pressure-free used car dealership in Athens, GA offering quality pre-owned vehicles and flexible financing options.';
+---
+
+<BaseLayout title={title} description={description} path="/about-us/" extraLd={[breadcrumbLd]}>
+  <div class="page-hero">
+    <div class="container">
+      <h1>About Us</h1>
+    </div>
+  </div>
+
+  <div class="page-section">
+    <div class="container" style="max-width:46rem">
+      <ul class="breadcrumb" aria-label="Breadcrumb">
+        <li><a href="/home/">Home</a></li>
+        <li aria-current="page">About Us</li>
+      </ul>
+
+      <div class="prose">
+        <p class="lead-in">
+          Welcome to our stress-free, pressure-free car dealership, where finding the perfect vehicle
+          for your needs is our top priority. Whether you’re on a tight budget or seeking something
+          more luxurious, we’ve got you covered. Our team is dedicated to assisting you every step of
+          the way, including financing options tailored to your circumstances. Our mission? To ensure
+          your car buying journey is nothing short of delightful.
+        </p>
+
+        <p>
+          Feel free to browse our inventory online and check out the Featured Vehicles section on our
+          homepage. If you see a vehicle you like, submit an online quote request, or contact us to
+          schedule a test drive.
+        </p>
+
+        <div class="actions" style="display:flex;flex-wrap:wrap;gap:.85rem;margin-top:2rem">
+          <a class="btn btn-primary" href="/">Browse Inventory</a>
+          <a class="btn btn-outline" href="/apply-online/">Apply Online</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

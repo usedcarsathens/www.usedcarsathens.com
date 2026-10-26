@@ -1,0 +1,67 @@
+---
+import type { Vehicle } from '../data/inventory';
+import { vehicleName, vehicleTitle, vehicleImageUrl, formatPrice, formatMiles } from '../data/inventory';
+
+interface Props {
+  vehicle: Vehicle;
+}
+
+const { vehicle: v } = Astro.props;
+
+const img = vehicleImageUrl(v, 'thumb');
+const ariaTitle = [v.year, v.make, v.model, v.stockNumber].filter(Boolean).join(' ');
+const altText = [v.year, v.make, v.model, v.bodyType, v.engine, v.trim]
+  .filter((part): part is string => Boolean(part))
+  .join(' ');
+const onerror = `this.onerror=null;this.src='/placeholder-car.svg'`;
+---
+
+<article class="vehicle-card">
+  <a class="card-link" href={`/vehicles/${v.slug}/`} aria-label={ariaTitle} tabindex="-1">
+    <figure>
+      <img
+        src={img ?? '/placeholder-car.svg'}
+        alt={altText}
+        title={altText}
+        width="320"
+        height="240"
+        loading="lazy"
+        onerror={onerror}
+      />
+    </figure>
+  </a>
+  <div class="card-body">
+    <h3>
+      <a href={`/vehicles/${v.slug}/`} aria-label={ariaTitle}>{vehicleTitle(v)}</a>
+    </h3>
+    <p class="price">
+      <span class="label">Price:</span>
+      {formatPrice(v.price)}
+    </p>
+    <ul class="spec-list" aria-label="Vehicle highlights">
+      {v.vin && (
+        <li>
+          <strong>VIN:</strong> {v.vin}
+        </li>
+      )}
+      <li>
+        <strong>Mileage:</strong> {formatMiles(v.odometer)}
+      </li>
+      {v.stockNumber && (
+        <li>
+          <strong>Stock Number:</strong> {v.stockNumber}
+        </li>
+      )}
+      {v.fuelType && (
+        <li>
+          <strong>Fuel Type:</strong> {v.fuelType}
+        </li>
+      )}
+    </ul>
+    <div class="cta-row">
+      <a href="tel:+17062159006">Call</a>
+      <a href="mailto:paul@usedcarsathens.com">Email</a>
+      <a class="solid" href="/apply-online/">Apply</a>
+    </div>
+  </div>
+</article>

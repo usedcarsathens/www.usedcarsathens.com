@@ -1,0 +1,177 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+
+const SITE = 'https://www.usedcarsathens.com';
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/home/` },
+    { '@type': 'ListItem', position: 2, name: 'Privacy Policy', item: `${SITE}/privacy-policy/` },
+  ],
+};
+
+const title = 'Privacy Policy - Used Cars Athens';
+const description =
+  'How Used Cars Athens collects, uses, and protects your personal information — including our security procedures, cookie use, and SMS message terms.';
+---
+
+<BaseLayout title={title} description={description} path="/privacy-policy/" extraLd={[breadcrumbLd]}>
+  <div class="page-hero">
+    <div class="container">
+      <h1>Privacy Policy</h1>
+    </div>
+  </div>
+
+  <div class="page-section">
+    <div class="container" style="max-width:46rem">
+      <ul class="breadcrumb" aria-label="Breadcrumb">
+        <li><a href="/home/">Home</a></li>
+        <li aria-current="page">Privacy Policy</li>
+      </ul>
+
+      <div class="prose" style="margin-top:2rem">
+        <p>
+          This privacy notice discloses the privacy practices for this web site. This privacy notice
+          applies solely to information collected by this web site. It will notify you of the
+          following:
+        </p>
+        <ol class="numbered">
+          <li>
+            What personally identifiable information is collected from you through the web site, how
+            it is used and with whom it may be shared.
+          </li>
+          <li>What choices are available to you regarding the use of your data.</li>
+          <li>The security procedures in place to protect the misuse of your information.</li>
+          <li>How you can correct any inaccuracies in the information.</li>
+        </ol>
+
+        <h2>Information Collection, Use, and Sharing</h2>
+        <p>
+          We are the sole owners of the information collected on this site. We only have access
+          to/collect information that you voluntarily give us via email or other direct contact from
+          you. We will not sell or rent this information to anyone.
+        </p>
+        <p>
+          We will use your information to respond to you, regarding the reason you contacted us. We
+          will not share your information with any third party outside of our organization, other
+          than as necessary to fulfill your request, e.g. to ship an order.
+        </p>
+        <p>
+          Unless you ask us not to, we may contact you via email in the future to tell you about
+          specials, new products or services, or changes to this privacy policy.
+        </p>
+
+        <h2>Your Access to and Control Over Information</h2>
+        <p>
+          You may opt out of any future contacts from us at any time. You can do the following at any
+          time by contacting us via the email address or phone number given on our website:
+        </p>
+        <ul>
+          <li>See what data we have about you, if any.</li>
+          <li>Change/correct any data we have about you.</li>
+          <li>Have us delete any data we have about you.</li>
+          <li>Express any concern you have about our use of your data.</li>
+        </ul>
+
+        <h2>Security</h2>
+        <p>
+          We take precautions to protect your information. When you submit sensitive information via
+          the website, your information is protected both online and offline.
+        </p>
+        <p>
+          Wherever we collect sensitive information (such as credit card data), that information is
+          encrypted and transmitted to us in a secure way. You can verify this by looking for a
+          closed lock icon at the bottom of your web browser, or looking for “https” at the beginning
+          of the address of the web page.
+        </p>
+        <p>
+          While we use encryption to protect sensitive information transmitted online, we also
+          protect your information offline. Only employees who need the information to perform a
+          specific job (for example, billing or customer service) are granted access to personally
+          identifiable information. The computers/servers in which we store personally identifiable
+          information are kept in a secure environment.
+        </p>
+        <p>
+          If you feel that we are not abiding by this privacy policy, you should contact us
+          immediately via telephone or via email.
+        </p>
+
+        <h2>Cookies</h2>
+        <p>
+          We use “cookies” on this site. A cookie is a piece of data stored on a site visitor’s hard
+          drive to help us improve your access to our site and identify repeat visitors to our site.
+          For instance, when we use a cookie to identify you, you would not have to log in a password
+          more than once, thereby saving time while on our site. Cookies can also enable us to track
+          and target the interests of our users to enhance the experience on our site. Usage of a
+          cookie is in no way linked to any personally identifiable information on our site.
+        </p>
+        <p>
+          Some of our business partners may use cookies on our site (for example, advertisers).
+          However, we have no access to or control over these cookies.
+        </p>
+
+        <h2>Links</h2>
+        <p>
+          This web site contains links to other sites. Please be aware that we are not responsible
+          for the content or privacy practices of such other sites. We encourage our users to be
+          aware when they leave our site and to read the privacy statements of any other site that
+          collects personally identifiable information.
+        </p>
+
+        <p><strong>Used Cars Athens</strong></p>
+        <p><strong>Terms and Conditions – SMS</strong></p>
+        <p>
+          By checking the box you (“end user”) concent to receive messages from Used
+          Cars Athens(“Business”) for the purpose of receiving Seasonal Offers and Appointment
+          Confirmations and Reminders. Please read the following terms carefully before giving your
+          concent.
+        </p>
+        <p>
+          <strong>Consent:</strong> By checking the box, you acknowledge that you have read and
+          understood the terms of this consent and agree to receive messages from the business.
+        </p>
+        <p>
+          <strong>Message Type:</strong> The messages you will receive from the Business will be
+          related to Seasonal Offers and Appointment Confirmations, updates, and other related
+          content.
+        </p>
+        <p>
+          <strong>Opting Out:</strong> You have the right to opt out of receiving messages at any
+          time. You can unsubscribe by following the instructions provided in the messages or by
+          contacting the Business directly.
+        </p>
+        <p>
+          <strong>Privacy Policy:</strong> The Business’s Privacy policy, available at
+          usedcarsathens.com outlines how your personal information will be collected, used, and
+          protected. By giving consent, you acknowledge that you have read and understood the
+          Business’s privacy policy.
+        </p>
+        <p>
+          <strong>Frequency:</strong> The Business will send messages to you on a periodic basis, as
+          determined by the Business. However, the Business will make reasonable efforts to ensure
+          that the frequency of messages is not excessive or intrusive.
+        </p>
+        <p>
+          <strong>Data Charges:</strong> Standard data and message rates may apply for receiving
+          messages from the Business. You are solely responsible for any charges incurred from your
+          mobile service provider.
+        </p>
+        <p>
+          <strong>Security:</strong> The Bussness will take reasonable measure to protect your
+          personal information and ensure the security of the messages sent to you. However, no
+          method of transmission over the internet or electronic storage is completely secure, and
+          the Business cannot guarantee absolute security.
+        </p>
+        <p>
+          <strong>Contact Information:</strong> If you have any questions, concerns, or wish to
+          excercise your rights regarding your personal information or this consent, please contact
+          the Business using the contact information provided on the website. By checking the box and
+          providing your consent, you confirm that you are the authorized owner of the provided
+          contact information and that you are at least 18 years old or have obtained parental
+          consent.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

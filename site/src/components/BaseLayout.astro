@@ -1,0 +1,160 @@
+---
+import '../styles/global.css';
+import SEOHead from '../components/SEOHead.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+  extraLd?: { [key: string]: unknown }[];
+  noindex?: boolean;
+}
+
+const { title, description, path, ogImage, extraLd, noindex } = Astro.props;
+
+const NAV: { label: string; href: string }[] = [
+  { label: 'Home', href: '/home/' },
+  { label: 'Inventory', href: '/?' },
+  { label: 'Apply Online', href: '/apply-online/' },
+  { label: 'About Us', href: '/about-us/' },
+  { label: 'Contact Us', href: '/contact-us/' },
+];
+
+const currentPath = path.replace(/\/?$/, '').toLowerCase();
+const isActive = (href: string) => {
+  const h = href.replace(/^https?:[^/]+/, '').replace(/\/?$/, '').replace(/\?$/, '');
+  const n = h.toLowerCase();
+  if (n === '/' ) return currentPath === '';
+  if (n === '/home') return currentPath === '/home';
+  return currentPath.startsWith(n);
+};
+
+const FOOTER_NAV: { label: string; href: string }[] = [
+  ...NAV,
+  { label: 'Privacy Policy', href: '/privacy-policy/' },
+];
+---
+
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <SEOHead
+      title={title}
+      description={description}
+      path={path}
+      ogImage={ogImage}
+      extraLd={extraLd}
+      noindex={noindex}
+    />
+  </head>
+  <body>
+    <div class="topbar" role="navigation" aria-label="Contact information">
+      <div class="container">
+        <span>📍 159 Oneta St STE 4,Athens,GA 30601</span>
+        <span>
+          <span class="strong">SALES:</span>
+          <a href="tel:+17062159006">(706) 215-9006</a>
+        </span>
+        <span>
+          <span class="strong">SALES:</span>
+          <a href="mailto:paul@usedcarsathens.com">paul@usedcarsathens.com</a>
+        </span>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href="/home/">Used Cars <span class="dot">Athens</span></a>
+        <nav class="nav-desktop" aria-label="Main">
+          <ul class="nav-list">
+            {NAV.map((item) => (
+              <li>
+                <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <nav class="nav-mobile" aria-label="Mobile menu">
+          <details>
+            <summary>Menu</summary>
+            <ul class="nav-list">
+              {NAV.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <h5>Navigation</h5>
+            <ul>
+              {FOOTER_NAV.map((item) => (
+                <li>
+                  <a href={item.href}>{item.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h5>Our Address</h5>
+            <address>
+              159 Oneta St STE 4
+              <br />
+              Athens, GA 30601
+            </address>
+          </div>
+          <div>
+            <h5>Contact Us</h5>
+            <address>
+              SALES: <a href="tel:+17062159006">(706) 215-9006</a>
+              <br />
+              SALES: <a href="mailto:paul@usedcarsathens.com">paul@usedcarsathens.com</a>
+            </address>
+          </div>
+          <div>
+            <h5>Store Hours</h5>
+            <p class="footer-hours">
+              Mon&nbsp;-&nbsp;Sun&nbsp;:
+              <br />
+              8:00 AM - 6:00 PM
+            </p>
+            <h5 style="margin-top:1rem">Follow Us</h5>
+            <ul>
+              <li>
+                <a
+                  href="https://www.facebook.com/profile.php?id=61558695008651"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  Facebook
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">© 2026 Used Cars Athens</div>
+      </div>
+    </footer>
+  </body>
+</html>

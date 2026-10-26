@@ -1,0 +1,166 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+import {
+  vehicles,
+  filterVehicles,
+  distinct,
+} from '../data/inventory';
+
+const SITE = 'https://www.usedcarsathens.com';
+
+const bodyStyles = distinct(vehicles, 'bodyType').sort((a, b) => a.localeCompare(b));
+const makes = distinct(vehicles, 'make').sort((a, b) => a.localeCompare(b));
+
+const countFor = (make?: string, bodyType?: string) =>
+  filterVehicles(vehicles, { make, bodyType }).length;
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/home/` },
+  ],
+};
+
+const title = 'HOME - Used Cars Athens';
+const description =
+  'Used Cars Athens is a stress-free, pressure-free used car dealer in Athens, GA. Browse used SUVs, hatches and sedans, apply for financing online, or call (706) 215-9006.';
+---
+
+<BaseLayout title={title} description={description} path="/home/" extraLd={[breadcrumbLd]}>
+  <!-- Hero -->
+  <div class="hero" role="presentation">
+    <div class="container">
+      <p class="hero-kicker">ACCELERATE</p>
+      <p class="hero-big">PERFECT</p>
+      <p class="hero-sub">
+        YOUR STRESS-FREE JOURNEY TO THE <strong>PERFECT</strong> RIDE STARTS HERE!
+      </p>
+      <p class="hero-copy">
+        Welcome to Used Cars Athens, where stress-free shopping meets your dream ride.
+        Discover our diverse selection, personalized service, and seamless financing options.
+        Drive away with confidence, only at Used Cars Athens
+      </p>
+      <p>
+        <a class="btn btn-light" href="/">Browse Our Inventory</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- H1 band -->
+  <div class="page-section" style="padding:2.5rem 0">
+    <div class="container">
+      <h1 class="page-title" style="text-align:center">
+        Used Cars Athens: Used Car Dealer in Athens, GA
+      </h1>
+    </div>
+  </div>
+
+  <!-- Quick search -->
+  <div class="page-section" style="padding-top:0">
+    <div class="container">
+      <h2 class="section-title" style="text-align:center;margin-bottom:1.25rem">QUICK SEARCH</h2>
+      <form class="quick-search" action="/" method="get" role="search" aria-label="Quick vehicle search">
+        <div class="field">
+          <label for="qs-keyword">Keyword</label>
+          <input type="text" id="qs-keyword" name="keyword" placeholder="Year, make, model, VIN…" />
+        </div>
+        <div class="field">
+          <label for="qs-make">Make</label>
+          <select id="qs-make" name="make">
+            <option value="">Any Make</option>
+            {makes.map((m) => <option value={m}>{m}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="qs-model">Model</label>
+          <input type="text" id="qs-model" name="model" placeholder="Model" />
+        </div>
+        <div class="field">
+          <label for="qs-body">Body Type</label>
+          <select id="qs-body" name="body_type">
+            <option value="">Any Body Type</option>
+            {bodyStyles.map((b) => <option value={b}>{b}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="qs-year">Year</label>
+          <input type="number" id="qs-year" name="year" inputmode="numeric" min={2000} max={2026} placeholder="Year" />
+        </div>
+        <div class="field">
+          <label for="qs-max-price">Max Price</label>
+          <input type="number" id="qs-max-price" name="max_price" inputmode="numeric" min={0} step={500} placeholder="$" />
+        </div>
+        <div class="field">
+          <label for="qs-max-miles">Max Miles</label>
+          <input type="number" id="qs-max-miles" name="max_miles" inputmode="numeric" min={0} step={1000} placeholder="Miles" />
+        </div>
+        <div class="search-actions">
+          <button type="submit" class="btn btn-primary">Search for Cars</button>
+          <a class="btn btn-outline" href="/" title="Clear all filters">Reset Search Filter</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Explore by body style -->
+  <div class="page-section">
+    <div class="container">
+      <h2 class="section-title section-title--center" style="text-align:center">Explore Vehicles By Body Style</h2>
+      <p class="section-intro" style="text-align:center">
+        We will help you to find your dream ride with less hassle – whether a basic or luxury sedan,
+        a coupe/convertible, a crossover or an SUV.
+      </p>
+      <ul class="tile-grid">
+        {bodyStyles.map((b) => (
+          <li>
+            <a href={`/?body_type=${encodeURIComponent(b)}`}>
+              {b}
+              <span class="count">{countFor(undefined, b)} in stock</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <!-- CTA band -->
+  <div class="cta-band">
+    <div class="container">
+      <p class="section-intro">
+        We are dedicated to provide you with the ultimate automobile buying experience.
+        Our dealership is your #1 source for buying a quality pre-owned vehicle.
+        We have extensive relationships in the dealer community allowing us to purchase a wide
+        variety of lease returns and new car trades at exceptional values. This enables us to pass
+        along huge savings on the highest quality vehicles of your choice. In addition, we offer a
+        full array of financing options to meet your needs.
+      </p>
+      <h3>CALL US TODAY !</h3>
+      <a class="phone" href="tel:+17062159006">(706) 215-9006</a>
+      <div class="actions">
+        <a class="btn btn-light" href="/apply-online/">APPLY ONLINE</a>
+        <a class="btn btn-light" href="/contact-us/">CONTACT US</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popular makes -->
+  <div class="page-section">
+    <div class="container">
+      <h2 class="section-title" style="text-align:center">Popular Makes</h2>
+      <p class="section-intro" style="text-align:center">
+        We strive to do all we can to get you the car that you're looking for. As your trusted
+        used car dealership in your area, we pride ourselves on our wide array of used vehicles.
+      </p>
+      <ul class="tile-grid">
+        {makes.map((m) => (
+          <li>
+            <a href={`/?make=${encodeURIComponent(m)}`}>
+              {m}
+              <span class="count">{countFor(m)} in stock</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

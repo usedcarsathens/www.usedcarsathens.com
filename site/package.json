@@ -1,0 +1,27 @@
+{
+  "name": "used-cars-athens-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Used Cars Athens — static marketing + inventory site built with Astro",
+  "engines": {
+    "node": ">=18.17.1"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync": "node scripts/sync-inventory.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^4.16.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "overrides": {
+    "@astrojs/sitemap": "3.4.1"
+  }
+}

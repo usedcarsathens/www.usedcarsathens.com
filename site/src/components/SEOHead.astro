@@ -1,0 +1,97 @@
+---
+/** Shared SEO + JSON-LD head block.
+ *  Renders <title>, description, canonical, Open Graph, Twitter cards and
+ *  a single JSON-LD @graph (Organization / AutoDealer / WebSite + page nodes).
+ */
+
+type LdNode = { [key: string]: unknown };
+
+interface Props {
+  title: string;
+  description: string;
+  /** Trailing-slash site path, e.g. "/apply-online/" (used for canonical + JSON-LD). */
+  path: string;
+  ogImage?: string;
+  extraLd?: LdNode[];
+  noindex?: boolean;
+}
+
+const { title, description, path, ogImage, extraLd = [], noindex = false } = Astro.props;
+
+const SITE = 'https://www.usedcarsathens.com';
+const URL = `${SITE}${path === '/' ? '/' : path === '' ? '/' : path}`;
+const OG_IMAGE = ogImage ? (ogImage.startsWith('http') ? ogImage : `${SITE}${ogImage}`) : undefined;
+
+const organization: LdNode = {
+  '@type': 'Organization',
+  '@id': `${SITE}/#organization`,
+  name: 'Used Cars Athens',
+  url: SITE,
+  telephone: '+1 706-215-9006',
+  email: 'paul@usedcarsathens.com',
+  sameAs: ['https://www.facebook.com/profile.php?id=61558695008651'],
+};
+
+const autoDealer: LdNode = {
+  '@type': 'AutoDealer',
+  '@id': `${SITE}/#auto-dealer`,
+  name: 'Used Cars Athens',
+  url: SITE,
+  image: `${SITE}/placeholder-car.svg`,
+  telephone: '+1 706-215-9006',
+  email: 'paul@usedcarsathens.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '159 Oneta St STE 4',
+    addressLocality: 'Athens',
+    addressRegion: 'GA',
+    postalCode: '30601',
+    addressCountry: 'US',
+  },
+  areaServed: 'Athens, GA, United States',
+  openingHours: 'Mo-Su 08:00-18:00',
+  currenciesAccepted: 'USD',
+  priceRange: '$$',
+  sameAs: ['https://www.facebook.com/profile.php?id=61558695008651'],
+};
+
+const website: LdNode = {
+  '@type': 'WebSite',
+  '@id': `${SITE}/#website`,
+  name: 'Used Cars Athens',
+  url: SITE,
+  publisher: { '@id': `${SITE}/#organization` },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/?make={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const graph: LdNode[] = [organization, autoDealer, website, ...extraLd];
+const graphJson = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={URL} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Used Cars Athens" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={URL} />
+{OG_IMAGE && <meta property="og:image" content={OG_IMAGE} />}
+{OG_IMAGE && <meta property="og:image:alt" content={title} />}
+
+<meta name="twitter:card" content={OG_IMAGE ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{OG_IMAGE && <meta name="twitter:image" content={OG_IMAGE} />}
+
+<script type="application/ld+json" set:html={graphJson} />

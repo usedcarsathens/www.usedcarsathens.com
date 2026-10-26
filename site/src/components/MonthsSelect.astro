@@ -1,0 +1,27 @@
+---
+interface Props {
+  name: string;
+  id?: string;
+  label?: string;
+  required?: boolean;
+  disabled?: boolean;
+  /** HTML autocomplete token, e.g. "off". */
+  autocomplete?: string;
+}
+
+const { name, id, label = 'Months', required = false, disabled = false, autocomplete } = Astro.props;
+const MONTHS = Array.from({ length: 12 }, (_, i) => String(i));
+const elId = id ?? name;
+---
+
+<div class="field">
+  <label for={elId}>
+    {label}{required && <span class="req" aria-hidden="true"> *</span>}
+  </label>
+  <select name={name} id={elId} required={required || undefined} disabled={disabled || undefined} autocomplete={autocomplete || undefined}>
+    <option value="" selected disabled>Please select</option>
+    {MONTHS.map((m) => (
+      <option value={m}>{m}</option>
+    ))}
+  </select>
+</div>

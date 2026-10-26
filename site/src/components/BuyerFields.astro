@@ -1,0 +1,224 @@
+---
+import Field from './Field.astro';
+import StateSelect from './StateSelect.astro';
+import YearsSelect from './YearsSelect.astro';
+import MonthsSelect from './MonthsSelect.astro';
+
+interface Props {
+  /** '' for the buyer, 'co_buyer' for the co-buyer (each field name is prefixed with `${namePrefix}_`). */
+  namePrefix: string;
+  legendBase: string;
+  disabled?: boolean;
+}
+
+const { namePrefix, legendBase, disabled = false } = Astro.props;
+
+const nm = (key: string) => (namePrefix ? `${namePrefix}_${key}` : key);
+const lg = (section: string) => `${legendBase} — ${section}`;
+---
+
+<fieldset class="section">
+  <legend>{lg('Personal Information')}</legend>
+
+  <Field
+    label="First Name"
+    name={nm('first_name')}
+    type="text"
+    placeholder="First Name *"
+    autocomplete="given-name"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Last Name"
+    name={nm('last_name')}
+    type="text"
+    placeholder="Last Name *"
+    autocomplete="family-name"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Email Address"
+    name={nm('email')}
+    type="email"
+    placeholder="Email Address *"
+    autocomplete="email"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Mobile Phone Number"
+    name={nm('mobile_phone_number')}
+    type="tel"
+    inputmode="tel"
+    placeholder="Mobile Phone Number *"
+    autocomplete="tel"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Home Phone Number"
+    name={nm('home_phone_number')}
+    type="tel"
+    inputmode="tel"
+    placeholder="Home Phone Number"
+    autocomplete="tel"
+    disabled={disabled}
+  />
+  <Field
+    label="Date of Birth"
+    name={nm('birthdate')}
+    type="date"
+    autocomplete="bday"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="SSN / ITIN"
+    name={nm('sss_itin')}
+    type="text"
+    placeholder="SSN / ITIN"
+    autocomplete="off"
+    required
+    disabled={disabled}
+  />
+
+  <h3 style="margin:1.25rem 0 .5rem">Driver License</h3>
+  <Field
+    label="Driver License Number"
+    name={nm('driver_license_number')}
+    type="text"
+    placeholder="Driver License Number *"
+    autocomplete="off"
+    required
+    disabled={disabled}
+  />
+  <StateSelect name={nm('driver_license_state')} required disabled={disabled} autocomplete="off" />
+  <Field
+    label="Driver License Issue Date"
+    name={nm('driver_license_issue_date')}
+    type="date"
+    placeholder="Driver License Issue Date"
+    autocomplete="off"
+    disabled={disabled}
+  />
+  <Field
+    label="Driver License Expiry Date"
+    name={nm('driver_license_expiry_date')}
+    type="date"
+    placeholder="Driver License Expiry Date"
+    autocomplete="off"
+    required
+    disabled={disabled}
+  />
+</fieldset>
+
+<fieldset class="section">
+  <legend>{lg('Residential Information')}</legend>
+
+  <Field
+    label="Street Address"
+    name={nm('street')}
+    type="text"
+    placeholder="Street Address *"
+    autocomplete="street-address"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="City"
+    name={nm('city')}
+    type="text"
+    placeholder="City *"
+    autocomplete="address-level2"
+    required
+    disabled={disabled}
+  />
+  <StateSelect name={nm('state')} required disabled={disabled} autocomplete="address-level1" />
+  <Field
+    label="Zip Code"
+    name={nm('zip_code')}
+    type="text"
+    inputmode="numeric"
+    maxlength={10}
+    placeholder="Zip Code *"
+    autocomplete="postal-code"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Housing Type"
+    name={nm('housing_type')}
+    options={['Rent', 'Own', 'Other']}
+    placeholderOption="Please select your Housing Type"
+    autocomplete="off"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Monthly Rent/Mortgage Amount"
+    name={nm('monthly_rent_mortgage_amount')}
+    type="number"
+    min={0}
+    step={1}
+    placeholder="Monthly Rent/Mortgage Amount *"
+    autocomplete="off"
+    required
+    disabled={disabled}
+  />
+  <div class="field--inline">
+    <label class="visually-hidden" for={nm('years_residing')}>How long have you been residing here</label>
+    <YearsSelect name={nm('years_residing')} label="Years Residing" disabled={disabled} autocomplete="off" />
+    <MonthsSelect name={nm('months_residing')} label="Months Residing" disabled={disabled} autocomplete="off" />
+  </div>
+</fieldset>
+
+<fieldset class="section">
+  <legend>{lg('Employment Information')}</legend>
+
+  <Field
+    label="Employer Name"
+    name={nm('employer_name')}
+    type="text"
+    placeholder="Employer Name *"
+    autocomplete="organization"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Title / Position"
+    name={nm('employer_title_position')}
+    type="text"
+    placeholder="Title / Position *"
+    autocomplete="organization-title"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Employer Phone Number"
+    name={nm('employer_phone_number')}
+    type="tel"
+    inputmode="tel"
+    placeholder="Employer Phone Number *"
+    autocomplete="tel"
+    required
+    disabled={disabled}
+  />
+  <Field
+    label="Monthly Gross Income"
+    name={nm('monthly_gross_income')}
+    type="number"
+    min={0}
+    step={1}
+    placeholder="Monthly Gross Income *"
+    autocomplete="off"
+    required
+    disabled={disabled}
+  />
+  <div class="field--inline">
+    <label class="visually-hidden" for={nm('employment_years')}>How long have you been employed</label>
+    <YearsSelect name={nm('employment_years')} label="Employment Years" disabled={disabled} autocomplete="off" />
+    <MonthsSelect name={nm('employment_months')} label="Employment Months" disabled={disabled} autocomplete="off" />
+  </div>
+</fieldset>

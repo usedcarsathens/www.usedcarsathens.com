@@ -1,0 +1,217 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+import VehicleCard from '../components/VehicleCard.astro';
+import {
+  vehicles,
+  vehicleName,
+  sortVehicles,
+  SORT_OPTIONS,
+  type SortOption,
+} from '../data/inventory';
+
+const SITE = 'https://www.usedcarsathens.com';
+
+/* ---------- Server-side query-param filter / sort / paginate (no client JS) ---------- */
+const sp = Astro.url.searchParams;
+
+const keyword = (sp.get('keyword') ?? '').trim().toLowerCase();
+const makeParam = (sp.get('make') ?? '').trim().toLowerCase();
+const modelParam = (sp.get('model') ?? '').trim().toLowerCase();
+const bodyParam = (sp.get('body_type') ?? '').trim().toLowerCase();
+
+const numParam = (raw: string | null): number | undefined => {
+  if (raw === null || raw === '') return undefined;
+  const n = Number.parseInt(raw, 10);
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+};
+
+const yearParam = numParam(sp.get('year'));
+const maxPrice = numParam(sp.get('max_price'));
+const maxMiles = numParam(sp.get('max_miles'));
+
+let filtered = vehicles.filter((v) => {
+  if (keyword) {
+    const haystack =
+      `${v.year} ${v.make} ${v.model} ${v.stockNumber ?? ''} ${v.vin ?? ''} ${v.bodyType ?? ''} ${v.trim ?? ''}`.toLowerCase();
+    if (!haystack.includes(keyword)) return false;
+  }
+  if (makeParam && v.make.toLowerCase() !== makeParam) return false;
+  if (modelParam && v.model.toLowerCase() !== modelParam) return false;
+  if (bodyParam && (v.bodyType ?? '').toLowerCase() !== bodyParam) return false;
+  if (yearParam !== undefined && v.year !== yearParam) return false;
+  if (maxPrice !== undefined && v.price > maxPrice) return false;
+  if (maxMiles !== undefined && v.odometer > maxMiles) return false;
+  return true;
+});
+
+const sortRaw = (sp.get('sort_by') ?? '').trim();
+const sortKey: SortOption =
+  sortRaw === '' ? 'default' : (SORT_OPTIONS.some((o) => o.key === sortRaw) ? sortRaw : 'default');
+const sorted = sortVehicles(filtered, sortKey);
+
+const PAGE_SIZES = [9, 12, 16, 24];
+const pagerRaw = Number.parseInt(sp.get('pager') ?? '', 10);
+const pageSize = PAGE_SIZES.includes(pagerRaw) ? pagerRaw : 9;
+const pageRaw = Number.parseInt(sp.get('page_no') ?? '', 10);
+const pageNo = Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1;
+const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+const current = Math.min(pageNo, totalPages);
+const visible = sorted.slice((current - 1) * pageSize, current * pageSize);
+const rangeStart = filtered.length === 0 ? 0 : (current - 1) * pageSize + 1;
+const rangeEnd = Math.min(current * pageSize, filtered.length);
+
+function urlFor(overrides: Record<string, string | number> = {}): string {
+  const params = new URLSearchParams();
+  if (keyword) params.set('keyword', keyword);
+  if (makeParam) params.set('make', makeParam);
+  if (modelParam) params.set('model', modelParam);
+  if (bodyParam) params.set('body_type', bodyParam);
+  if (yearParam !== undefined) params.set('year', String(yearParam));
+  if (maxPrice !== undefined) params.set('max_price', String(maxPrice));
+  if (maxMiles !== undefined) params.set('max_miles', String(maxMiles));
+  if (sortKey !== 'default') params.set('sort_by', sortKey);
+  if (pageSize !== 9) params.set('pager', String(pageSize));
+  Object.entries(overrides).forEach(([k, val]) => params.set(k, String(val)));
+  const qs = params.toString();
+  return qs ? `/?${qs}` : '/';
+}
+
+const activeCount = [keyword, makeParam, modelParam, bodyParam].filter(Boolean).length
+  + (yearParam !== undefined ? 1 : 0)
+  + (maxPrice !== undefined ? 1 : 0)
+  + (maxMiles !== undefined ? 1 : 0);
+
+const itemListLd = {
+  '@type': 'ItemList',
+  name: 'Inventory — Used Cars Athens',
+  itemListElement: visible.map((v, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: `${SITE}/vehicles/${v.slug}/`,
+    name: vehicleName(v),
+  })),
+};
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/home/` },
+    { '@type': 'ListItem', position: 2, name: 'Inventory', item: `${SITE}/` },
+  ],
+};
+
+const title = 'High Quality Car Inventory in Athens, GA | Used Cars Athens';
+const description = 'Check Car Listings in Athens, GA at Used Cars Athens today.';
+---
+
+<BaseLayout title={title} description={description} path="/" extraLd={[itemListLd, breadcrumbLd]}>
+  <div class="page-section">
+    <div class="container">
+      <h1 class="page-title">Inventory</h1>
+      <p class="section-intro">
+        Check Our High Quality Car Inventory in Athens, GA. Every vehicle is inspected and priced to
+        move — call <a href="tel:+17062159006">(706) 215-9006</a> or apply for financing online.
+      </p>
+
+      <ul class="breadcrumb" aria-label="Breadcrumb">
+        <li><a href="/home/">Home</a></li>
+        <li aria-current="page">Inventory</li>
+      </ul>
+
+      <form method="get" action="/" class="toolbar" role="search" aria-label="Inventory search controls">
+        <div class="field field--keyword">
+          <label for="keyword">Search</label>
+          <input
+            type="text"
+            id="keyword"
+            name="keyword"
+            value={keyword}
+            placeholder="Keyword Search"
+          />
+        </div>
+        <div class="field">
+          <label for="sort_by">Sort By:</label>
+          <select name="sort_by" id="sort_by">
+            {SORT_OPTIONS.map((opt) => (
+              <option value={opt.key} selected={sortKey === opt.key ? true : undefined}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div class="field">
+          <label for="pager">Page Size:</label>
+          <select name="pager" id="pager">
+            {PAGE_SIZES.map((size) => (
+              <option value={size} selected={pageSize === size ? true : undefined}>
+                {size} Vehicles
+              </option>
+            ))}
+          </select>
+        </div>
+        <div class="controls">
+          <button type="submit" class="btn btn-primary">Search</button>
+          <a class="btn btn-outline" href="/" title="Clear all filters">Reset</a>
+        </div>
+      </form>
+
+      <p class="result-count" aria-live="polite">
+        {filtered.length === 0
+          ? 'No vehicles match your search.'
+          : `Showing ${rangeStart}–${rangeEnd} of ${filtered.length} vehicle${filtered.length === 1 ? '' : 's'}`}
+        {activeCount > 0 && <> — filtered ({activeCount})</>}
+      </p>
+
+      {visible.length > 0 ? (
+        <>
+          <div class="vehicle-grid">
+            {visible.map((v) => <VehicleCard vehicle={v} />)}
+          </div>
+          {
+            totalPages > 1 && (
+              <nav class="pager" aria-label="Inventory pages">
+                {
+                  current > 1 && <a href={urlFor({ page_no: String(current - 1) })} aria-label="Previous page">‹ Prev</a>
+                }
+                {
+                  Array.from({ length: totalPages }, (_, i) => i + 1).map((p) =>
+                    p === current
+                      ? <span aria-current="page">{p}</span>
+                      : <a href={urlFor({ page_no: String(p) })}>{p}</a>
+                  )
+                }
+                {
+                  current < totalPages && (
+                    <a href={urlFor({ page_no: String(current + 1) })} aria-label="Next page">Next ›</a>
+                  )
+                }
+              </nav>
+            )
+          }
+        </>
+      ) : (
+        <div class="empty-state">
+          <h2>The vehicle you're trying to search could not be found!</h2>
+          <p>
+            Sorry! The vehicle you are looking for doesn't exist or no longer available. Make sure the
+            spelling is correct, or{' '}
+            <a href="/apply-online/">apply online</a> and we will help you find one.
+          </p>
+        </div>
+      )}
+
+      <div class="cta-band" style="margin-top:3rem;border-radius:var(--radius)">
+        <h3>Haven't found the right ride?</h3>
+        <p class="section-intro">
+          We buy quality pre-owned inventory daily. Tell us what you're looking for and a
+          representative will help you find it.
+        </p>
+        <div class="actions">
+          <a class="btn btn-light" href="tel:+17062159006">(706) 215-9006</a>
+          <a class="btn btn-light" href="/apply-online/">Apply Online</a>
+          <a class="btn btn-light" href="/contact-us/">Contact Us</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

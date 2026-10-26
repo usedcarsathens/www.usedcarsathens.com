@@ -1,0 +1,93 @@
+---
+/** Single labeled form field. Renders an <input> (default) or a <select>
+ *  when `options` is provided. The field name doubles as the element id.
+ */
+
+interface Props {
+  label: string;
+  name: string;
+  /** input type, defaults to text */
+  type?: string;
+  id?: string;
+  placeholder?: string;
+  required?: boolean;
+  value?: string;
+  maxlength?: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  inputmode?: 'text' | 'tel' | 'email' | 'numeric' | 'decimal';
+  checked?: boolean;
+  disabled?: boolean;
+  /** HTML autocomplete token, e.g. "tel", "bday", "off". */
+  autocomplete?: string;
+  /** When set, render a <select> with these options. */
+  options?: string[];
+  /** First (value="") option text for selects. */
+  placeholderOption?: string;
+  className?: string;
+}
+
+const {
+  label,
+  name,
+  type = 'text',
+  id,
+  placeholder,
+  required = false,
+  value,
+  maxlength,
+  min,
+  max,
+  step,
+  inputmode,
+  checked = false,
+  disabled = false,
+  autocomplete,
+  options,
+  placeholderOption,
+  className,
+} = Astro.props;
+
+const elId = id ?? name;
+---
+
+<div class={`field ${className ?? ''}`.trim()}>
+  <label for={elId}>
+    {label}{required && <span class="req" aria-hidden="true"> *</span>}
+  </label>
+  {
+    options ? (
+      <select
+        name={name}
+        id={elId}
+        required={required || undefined}
+        disabled={disabled || undefined}
+        autocomplete={autocomplete || undefined}>
+        {placeholderOption && <option value="" selected disabled>{placeholderOption}</option>}
+        {options.map((opt) => (
+          <option value={opt} selected={value === opt ? true : undefined}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <input
+        type={type}
+        name={name}
+        id={elId}
+        placeholder={placeholder || undefined}
+        required={required || undefined}
+        value={value ?? undefined}
+        maxlength={maxlength || undefined}
+        min={min ?? undefined}
+        max={max ?? undefined}
+        step={step ?? undefined}
+        inputmode={inputmode}
+        checked={checked || undefined}
+        disabled={disabled || undefined}
+        autocomplete={autocomplete || undefined}
+      />
+    )
+  }
+</div>

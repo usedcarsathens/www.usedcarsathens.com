@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../components/BaseLayout.astro';
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.usedcarsathens.com/home/' },
+  ],
+};
+
+const title = 'Page Not Found - Used Cars Athens';
+const description = 'The page you are looking for can’t be found. Explore our inventory or call Used Cars Athens at (706) 215-9006.';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path="/404/"
+  noindex
+  extraLd={[breadcrumbLd]}
+>
+  <div class="page-section">
+    <div class="container" style="max-width:38rem;text-align:center">
+      <h1 style="margin-top:2rem">404 — Page Not Found</h1>
+      <p class="section-intro">
+        Sorry, we couldn’t find the page you’re looking for. It may have moved or no longer
+        exists.
+      </p>
+      <div class="actions" style="flex-direction:column;align-items:center;margin-top:2rem">
+        <a class="btn btn-primary" href="/">Browse Inventory</a>
+        <a class="btn btn-outline" href="/home/">Back to Home</a>
+        <a class="btn btn-outline" href="tel:+17062159006">Call (706) 215-9006</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

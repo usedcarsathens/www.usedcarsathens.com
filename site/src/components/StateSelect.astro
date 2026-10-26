@@ -1,0 +1,38 @@
+---
+interface Props {
+  name: string;
+  id?: string;
+  label?: string;
+  required?: boolean;
+  disabled?: boolean;
+  /** HTML autocomplete token, e.g. "off", "address-level1". */
+  autocomplete?: string;
+}
+
+const { name, id, label = 'State', required = false, disabled = false, autocomplete } = Astro.props;
+
+const STATES: string[] = [
+  'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+  'Delaware', 'District Of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois',
+  'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts',
+  'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada',
+  'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota',
+  'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina',
+  'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
+  'West Virginia', 'Wisconsin', 'Wyoming',
+];
+
+const elId = id ?? name;
+---
+
+<div class="field">
+  <label for={elId}>
+    {label}{required && <span class="req" aria-hidden="true"> *</span>}
+  </label>
+  <select name={name} id={elId} required={required || undefined} disabled={disabled || undefined} autocomplete={autocomplete || undefined}>
+    <option value="" selected disabled>Please select your State</option>
+    {STATES.map((st) => (
+      <option value={st}>{st}</option>
+    ))}
+  </select>
+</div>

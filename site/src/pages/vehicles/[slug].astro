@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../../components/BaseLayout.astro';
+import {
+  vehicles,
+  vehicleTitle,
+  vehicleName,
+  vehicleImageUrl,
+  formatPrice,
+  formatMiles,
+} from '../../data/inventory';
+
+export function getStaticPaths() {
+  return vehicles.map((v) => ({ params: { slug: v.slug } }));
+}
+
+const { slug } = Astro.params;
+const v = vehicles.find((i) => i.slug === slug);
+if (!v) {
+  throw new Error(`Unknown vehicle slug: ${String(slug)}`);
+}
+
+const SITE = 'https://www.usedcarsathens.com';
+const url = `${SITE}/vehicles/${v.slug}/`;
+const imageFull = vehicleImageUrl(v, 'full');
+const displayImage = imageFull ?? '/placeholder-car.svg';
+const onerror = `this.onerror=null;this.src='/placeholder-car.svg'`;
+const altText = vehicleTitle(v);
+
+const specItems: Array<[string, string | null]> = [
+  ['Body Type', v.bodyType],
+  ['Trim', v.trim],
+  ['Engine', v.engine],
+  ['Transmission', v.transmission],
+  ['Drivetrain', v.drivetrain],
+  ['Doors', v.doors ? `${v.doors} Doors` : null],
+  ['Exterior Color', v.color],
+  ['Interior Color', v.interiorColor],
+  ['Fuel Type', v.fuelType],
+  ['City MPG', v.cityMPG != null ? `${v.cityMPG}` : null],
+  ['Highway MPG', v.highwayMPG != null ? `${v.highwayMPG}` : null],
+  ['VIN', v.vin],
+  ['Stock #', v.stockNumber],
+  ['Location', v.location],
+];
+
+const vehicleLd = {
+  '@type': 'Vehicle',
+  name: vehicleTitle(v),
+  description: `${vehicleTitle(v)} for sale in Athens, GA at Used Cars Athens. ${formatMiles(
+    v.odometer
+  )}, priced at ${formatPrice(v.price)}.`,
+  url,
+  ...(imageFull ? { image: imageFull } : {}),
+  ...(v.vin ? { vehicleIdentificationNumber: v.vin } : {}),
+  offers: {
+    '@type': 'AutoOffer',
+    price: formatPrice(v.price),
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    url,
+    unitCode: 'MIO',
+    unitText: 'Miles',
+    seller: {
+      '@type': 'Organization',
+      name: 'Used Cars Athens',
+      url: `${SITE}/`,
+    },
+  },
+};
+
+const breadcrumbLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/home/` },
+    { '@type': 'ListItem', position: 2, name: 'Inventory', item: `${SITE}/` },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: vehicleName(v),
+      item: `${SITE}/vehicles/${v.slug}/`,
+    },
+  ],
+};
+
+const ogImage = imageFull ?? '/placeholder-car.svg';
+const title = `${vehicleTitle(v)} for sale in Athens, GA | Used Cars Athens`;
+const description = `${title}. Call (706) 215-9006 or apply online for financing.`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={`/vehicles/${v.slug}/`}
+  ogImage={ogImage}
+  extraLd={[vehicleLd, breadcrumbLd]}
+>
+  <div class="page-section">
+    <div class="container">
+      <ul class="breadcrumb" aria-label="Breadcrumb">
+        <li><a href="/home/">Home</a></li>
+        <li><a href="/">Inventory</a></li>
+        <li aria-current="page">{vehicleName(v)}</li>
+      </ul>
+
+      <h1 style="margin:1rem 0 1.5rem">{vehicleTitle(v)}</h1>
+
+      <div class="detail-grid">
+        <div class="detail-gallery">
+          <figure>
+            <img
+              src={displayImage}
+              alt={`${altText} photo`}
+              title={altText}
+              width="640"
+              height="480"
+              onerror={onerror}
+            />
+          </figure>
+        </div>
+
+        <div class="detail-buybox">
+          <p class="price">
+            <span class="label">Price:</span>
+            {formatPrice(v.price)}
+          </p>
+          <p class="buybox-mileage">
+            <strong>{formatMiles(v.odometer)}</strong>{v.fuelType ? ` · ${v.fuelType}` : ''}
+          </p>
+          <div class="actions">
+            <a class="btn btn-primary" href="tel:+17062159006">CALL TODAY !</a>
+            <a class="btn btn-outline" href="/apply-online/">Apply Online</a>
+            <a class="btn btn-outline" href="mailto:paul@usedcarsathens.com">Email</a>
+          </div>
+          <p class="buybox-note">
+            Interested in this {vehicleName(v)}? Call <a href="tel:+17062159006">(706) 215-9006</a>
+            or send us a message — we answer every question.
+          </p>
+        </div>
+      </div>
+
+      <div class="prose" style="max-width:46rem;margin-top:2.5rem">
+        <h2>Vehicle Details</h2>
+        <ul class="spec-list" aria-label="Vehicle details" style="grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))">
+          {specItems
+            .filter(([, value]) => value)
+            .map(([label, value]) => (
+              <li>
+                <strong>{label}:</strong> {value}
+              </li>
+            ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
