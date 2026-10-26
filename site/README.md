@@ -23,10 +23,9 @@ repository root. The legacy files are untouched; this site builds from `src/` to
 
 ## Environment
 
-| Variable                | Used in                          | Purpose                                            |
-| ----------------------- | -------------------------------- | -------------------------------------------------- |
-| `PUBLIC_LEAD_ENDPOINT`  | `apply-online`, `contact-us`     | `action` target for the lead forms (falls back to `#`) |
-| `VEHICLES_RAW`          | `scripts/sync-inventory.mjs`     | Offline inventory fixture file (skips network)     |
+| Variable       | Used in                          | Purpose                                            |
+| -------------- | -------------------------------- | -------------------------------------------------- |
+| `VEHICLES_RAW` | `scripts/sync-inventory.mjs`     | Offline inventory fixture file (skips network)     |
 
 ## Notable details
 
@@ -43,17 +42,31 @@ repository root. The legacy files are untouched; this site builds from `src/` to
   purely static host that serves `index.html` for any query simply shows the unfiltered
   inventory, and the toolbar degrades to a "search this full list" UX rather than failing
   silently.
-- **Client JS budget.** At most two tiny scripts ship in the build — the contact-us
-  character counter and the apply-online co-buyer field toggle (≈9 logical lines each).
-  Car images use inline `onerror` fallbacks to `/placeholder-car.svg`. Total is comfortably
-  under the 40-line budget.
+- **Client JS budget.** Two tiny scripts ship per form page — the Netlify honeypot guard
+  (with the `?submitted` success reveal) plus the page utility: the contact-us character
+  counter and the apply-online co-buyer field toggle. Car images use inline `onerror`
+  fallbacks to `/placeholder-car.svg`.
 - **SEO.** Every page declares `title`/`description`/canonical + `og:` + `twitter:` tags and
   a single `application/ld+json` `@graph` (Organization, AutoDealer with Mo–Su 08:00–18:00
   hours, WebSite + SearchAction, plus per-page BreadcrumbList, ItemList on inventory,
   Vehicle + AutoOffer on detail pages). `404.html` is `noindex`.
-- **Forms.** Both lead forms include a honeypot (`website`), the exact legacy consent
-  paragraphs, a required `accept_terms` checkbox, and hidden
-  error/success blocks with verbatim legacy copy.
+## Forms (Netlify)
+
+- The apply-online and contact-us forms are native **Netlify Forms** — plain HTML forms with
+  `method="post"`, a `name` attribute (`apply-online`, `contact-us`), and `data-netlify="true"`.
+  Netlify detects them from the built `dist/` output on deploy: no submission library and no
+  endpoint environment variable to configure.
+- Both forms keep the exact legacy consent paragraphs, the required `accept_terms` checkbox,
+  and hidden error/success blocks. Each includes the custom `website` honeypot plus the
+  Netlify-native `_gotcha` hidden field. The inline script silently drops submissions where
+  either honeypot is filled, and otherwise lets the native POST proceed — Netlify intercepts
+  it and 302-redirects back to the page with `?submitted`, which reveals the success panel
+  (verbatim legacy copy: "Thank You! / The form has been submitted successfully. / A
+  representative from the dealership will contact you shortly.").
+- **Action item (Netlify side).** In the Netlify site UI, go to **Forms → Notifications** and
+  set the notification email to **paul@usedcarsathens.com** for both forms.
+- **Optional later (P2).** Add `data-netlify-recaptcha="true"` to both forms and link
+  Netlify reCAPTCHA in the site UI.
 
 ## Build output
 

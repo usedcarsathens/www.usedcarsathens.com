@@ -3,7 +3,6 @@ import BaseLayout from '../components/BaseLayout.astro';
 import BuyerFields from '../components/BuyerFields.astro';
 
 const SITE = 'https://www.usedcarsathens.com';
-const action = import.meta.env.PUBLIC_LEAD_ENDPOINT ?? '#';
 
 const breadcrumbLd = {
   '@type': 'BreadcrumbList',
@@ -48,7 +47,7 @@ const relationshipOptions: Array<[string, string]> = [
           you about your financing options.
         </p>
 
-        <form method="post" action={action} data-endpoint-set={import.meta.env.PUBLIC_LEAD_ENDPOINT ? 'true' : 'false'}>
+        <form method="post" name="apply-online" data-netlify="true">
           <BuyerFields namePrefix="" legendBase="Buyer" />
 
           <div class="field">
@@ -111,6 +110,7 @@ const relationshipOptions: Array<[string, string]> = [
             autocomplete="off"
             aria-hidden="true"
           />
+          <input type="hidden" name="_gotcha" value="" />
 
           <div id="form-error" class="form-status error" role="alert" hidden>
             <p>There was an error submitting the form. Please try again in a few minutes.</p>
@@ -122,11 +122,8 @@ const relationshipOptions: Array<[string, string]> = [
 
           <div id="form-success" class="form-status success" role="status" hidden>
             <p>Thank You!</p>
-            <p>
-              We're sorry — the online submission isn't fully connected yet. Call us at (706)
-              215-9006 or email paul@usedcarsathens.com and a representative will get you taken
-              care of right away.
-            </p>
+            <p>The form has been submitted successfully.</p>
+            <p>A representative from the dealership will contact you shortly.</p>
           </div>
 
           <div class="form-submit">
@@ -153,21 +150,21 @@ const relationshipOptions: Array<[string, string]> = [
 
 <script>
   const form = document.querySelector<HTMLFormElement>('form');
+  const success = document.getElementById('form-success');
+  const error = document.getElementById('form-error');
+  if (new URLSearchParams(window.location.search).has('submitted')) {
+    if (error) error.hidden = true;
+    if (success) {
+      success.hidden = false;
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
   if (form) {
     form.addEventListener('submit', (event) => {
-      const honeypot = form.querySelector<HTMLInputElement>('input[name="website"]');
-      if (honeypot && honeypot.value.trim() !== '') {
-        event.preventDefault();
-        return;
-      }
-      const endpointSet = form.dataset.endpointSet === 'true';
-      if (form.action === '#' || !endpointSet) {
-        event.preventDefault();
-        const err = document.getElementById('form-error');
-        if (err) err.hidden = true;
-        const ok = document.getElementById('form-success');
-        if (ok) ok.hidden = false;
-      }
+      const honeypots = ['website', '_gotcha']
+        .map((name) => form.querySelector<HTMLInputElement>(`input[name="${name}"]`))
+        .filter((el): el is HTMLInputElement => el !== null);
+      if (honeypots.some((el) => el.value.trim() !== '')) event.preventDefault();
     });
   }
 </script>
