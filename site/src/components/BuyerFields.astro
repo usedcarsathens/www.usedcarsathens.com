@@ -66,52 +66,6 @@ const lg = (section: string) => `${legendBase} — ${section}`;
     autocomplete="tel"
     disabled={disabled}
   />
-  <Field
-    label="Date of Birth"
-    name={nm('birthdate')}
-    type="date"
-    autocomplete="bday"
-    required
-    disabled={disabled}
-  />
-  <Field
-    label="SSN / ITIN"
-    name={nm('sss_itin')}
-    type="text"
-    placeholder="SSN / ITIN"
-    autocomplete="off"
-    required
-    disabled={disabled}
-  />
-
-  <h3 style="margin:1.25rem 0 .5rem">Driver License</h3>
-  <Field
-    label="Driver License Number"
-    name={nm('driver_license_number')}
-    type="text"
-    placeholder="Driver License Number *"
-    autocomplete="off"
-    required
-    disabled={disabled}
-  />
-  <StateSelect name={nm('driver_license_state')} required disabled={disabled} autocomplete="off" />
-  <Field
-    label="Driver License Issue Date"
-    name={nm('driver_license_issue_date')}
-    type="date"
-    placeholder="Driver License Issue Date"
-    autocomplete="off"
-    disabled={disabled}
-  />
-  <Field
-    label="Driver License Expiry Date"
-    name={nm('driver_license_expiry_date')}
-    type="date"
-    placeholder="Driver License Expiry Date"
-    autocomplete="off"
-    required
-    disabled={disabled}
-  />
 </fieldset>
 
 <fieldset class="section">
@@ -156,17 +110,6 @@ const lg = (section: string) => `${legendBase} — ${section}`;
     required
     disabled={disabled}
   />
-  <Field
-    label="Monthly Rent/Mortgage Amount"
-    name={nm('monthly_rent_mortgage_amount')}
-    type="number"
-    min={0}
-    step={1}
-    placeholder="Monthly Rent/Mortgage Amount *"
-    autocomplete="off"
-    required
-    disabled={disabled}
-  />
   <div class="field--inline">
     <label class="visually-hidden" for={nm('years_residing')}>How long have you been residing here</label>
     <YearsSelect name={nm('years_residing')} label="Years Residing" disabled={disabled} autocomplete="off" />
@@ -202,17 +145,6 @@ const lg = (section: string) => `${legendBase} — ${section}`;
     inputmode="tel"
     placeholder="Employer Phone Number *"
     autocomplete="tel"
-    required
-    disabled={disabled}
-  />
-  <Field
-    label="Monthly Gross Income"
-    name={nm('monthly_gross_income')}
-    type="number"
-    min={0}
-    step={1}
-    placeholder="Monthly Gross Income *"
-    autocomplete="off"
     required
     disabled={disabled}
   />
