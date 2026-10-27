@@ -15,12 +15,10 @@
     "sync": "node scripts/sync-inventory.mjs"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "astro": "^4.16.0"
   },
   "devDependencies": {
     "typescript": "^5.5.0"
-  },
-  "overrides": {
-    "@astrojs/sitemap": "3.4.1"
   }
 }
