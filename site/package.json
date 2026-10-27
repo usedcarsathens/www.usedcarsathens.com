@@ -15,7 +15,6 @@
     "sync": "node scripts/sync-inventory.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.2.1",
     "astro": "^4.16.0"
   },
   "devDependencies": {
